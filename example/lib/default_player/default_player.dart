@@ -17,10 +17,36 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
   void initState() {
     super.initState();
     flickManager = FlickManager(
-      videoPlayerController:
-          VideoPlayerController.network(mockData["items"][0]["trailer_url"]),
+      videoPlayerController: VideoPlayerController.network(
+        mockData["items"][0]["trailer_url"],
+        closedCaptionFile: _loadCaptions(),
+      ),
     );
   }
+
+  ///If you have subtitle assets
+
+  Future<ClosedCaptionFile> _loadCaptions() async {
+    final String fileContents = await DefaultAssetBundle.of(context)
+        .loadString('images/bumble_bee_captions.srt');
+    flickManager.flickControlManager!.toggleSubtitle();
+    return SubRipCaptionFile(fileContents);
+  }
+
+  ///If you have subtitle urls
+
+  // Future<ClosedCaptionFile> _loadCaptions() async {
+  //   final url = Uri.parse('SUBTITLE URL LINK');
+  //   try {
+  //     final data = await http.get(url);
+  //     final srtContent = data.body.toString();
+  //     print(srtContent);
+  //     return SubRipCaptionFile(srtContent);
+  //   } catch (e) {
+  //     print('Failed to get subtitles for ${e}');
+  //     return SubRipCaptionFile('');
+  //   }
+  //}
 
   @override
   void dispose() {
@@ -43,6 +69,7 @@ class _DefaultPlayerState extends State<DefaultPlayer> {
         child: FlickVideoPlayer(
           flickManager: flickManager,
           flickVideoWithControls: FlickVideoWithControls(
+            closedCaptionTextStyle: TextStyle(fontSize: 8),
             controls: FlickPortraitControls(),
           ),
           flickVideoWithControlsFullscreen: FlickVideoWithControls(
